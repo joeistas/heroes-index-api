@@ -1,0 +1,62 @@
+service: heroes-data-api
+
+custom:
+  S3_BUCKET_NAME: istastech.heroes.data
+  VERSION_INDEX_FILE_NAME: index.json
+  VERSIONS_FILE_NAME: versions.json
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: admin
+  stage: dev
+  region: us-west-2
+  memorySize: 256
+  timeout: 30
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+        - "s3:PutObject"
+      Resource: arn:aws:s3:::${self:custom.S3_BUCKET_NAME}/*
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: arn:aws:s3:::${self:custom.S3_BUCKET_NAME}
+  environment:
+    S3_BUCKET_NAME: ${self:custom.S3_BUCKET_NAME}
+    S3_DELIMITER: "/"
+    VERSION_INDEX_FILE_NAME: ${self:custom.VERSION_INDEX_FILE_NAME}
+    VERSIONS_FILE_NAME: ${self:custom.VERSIONS_FILE_NAME}
+
+package:
+  include:
+    - handler.js
+    - src/**
+
+functions:
+  api:
+    handler: handler.api
+    events:
+      - http:
+          path: "/"
+          method: any
+          cors: true
+      - http:
+          path: "/{proxy+}"
+          method: any
+          cors: true
+
+  updateVersionList:
+    handler: handler.updateVersionList
+    events:
+      - s3:
+          bucket: ${self:custom.S3_BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: ${self:custom.VERSION_INDEX_FILE_NAME}
+      - s3:
+          bucket: ${self:custom.S3_BUCKET_NAME}
+          event: s3:ObjectRemoved:*
+          rules:
+            - suffix: ${self:custom.VERSION_INDEX_FILE_NAME}

@@ -1,0 +1,19 @@
+{
+  "name": "heroes-parser-api",
+  "version": "1.0.0",
+  "description": "AWS Api for heroes parser website",
+  "main": "index.js",
+  "author": "Joe Istas <joe.istas@istastech.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@koa/cors": "^2.2.1",
+    "koa": "^2.5.1",
+    "koa-logger": "^3.2.0",
+    "koa-router": "^7.4.0",
+    "serverless-http": "^1.5.5"
+  },
+  "devDependencies": {
+    "serverless": "^1.27.3"
+  }
+}
