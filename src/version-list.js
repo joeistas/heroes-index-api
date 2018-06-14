@@ -23,7 +23,7 @@ module.exports = function(event, context, callback) {
       })
     })
     .then(versionData => { return JSON.stringify({ versions: versionData }) })
-    .then(data => uploadToS3(`${ realm }/${ VERSION_INDEX_FILE_NAME }`, "application/json", data))
+    .then(data => uploadToS3(`${ realm }/${ VERSIONS_FILE_NAME }`, "application/json", data))
     .then(data => callback(null, "updated"))
     .catch(error => callback(error))
 }
