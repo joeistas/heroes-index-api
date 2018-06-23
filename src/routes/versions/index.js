@@ -18,13 +18,13 @@ router.get("/", (ctx, next) => {
 router.get("/source", (ctx, next) => {
   const params = ctx.params
   return getObjectResponseFromS3(`${ params.realm }/${ params.version }/source.zip`)
-    .then(response => s3s3ResponseToResponse(ctx, response))
+    .then(response => s3ResponseToResponse(ctx, response))
 })
 
 router.get("/assets/:asset*", (ctx, next) => {
   const params = ctx.params
   return getObjectResponseFromS3(`${ params.realm }/${ params.version }/assets/${ params.asset }`)
-    .then(response => s3s3ResponseToResponse(ctx, response))
+    .then(response => s3ResponseToResponse(ctx, response))
 })
 
 router.use("/heroes", heroes.routes(), heroes.allowedMethods())

@@ -3,9 +3,8 @@ module.exports.bufferToJsonResponse = function(ctx, buffer) {
   ctx.response.type = "application/json"
 }
 
-module.exports.s3ResponseToResponse = function(ctx, response) {
+module.exports.s3ResponseToResponse = function(ctx, data) {
   ctx.response.body = data.Body
   ctx.response.type = data.ContentType
-  ctx.response.length = data.ContentLength
   ctx.response.set("Last-Modified", data.LastModified.toUTCString())
 }

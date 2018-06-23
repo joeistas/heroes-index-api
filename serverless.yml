@@ -28,6 +28,7 @@ provider:
     S3_DELIMITER: "/"
     VERSION_INDEX_FILE_NAME: ${self:custom.VERSION_INDEX_FILE_NAME}
     VERSIONS_FILE_NAME: ${self:custom.VERSIONS_FILE_NAME}
+    BINARY_CONTENT_TYPES: image/png
 
 package:
   include:
@@ -37,6 +38,7 @@ package:
 functions:
   api:
     handler: handler.api
+    timeout: 30
     events:
       - http:
           path: "/"
