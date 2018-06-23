@@ -11,7 +11,7 @@ provider:
   profile: admin
   stage: dev
   region: us-west-2
-  memorySize: 256
+  memorySize: 128
   timeout: 30
   iamRoleStatements:
     - Effect: "Allow"
@@ -28,7 +28,6 @@ provider:
     S3_DELIMITER: "/"
     VERSION_INDEX_FILE_NAME: ${self:custom.VERSION_INDEX_FILE_NAME}
     VERSIONS_FILE_NAME: ${self:custom.VERSIONS_FILE_NAME}
-    BINARY_CONTENT_TYPES: image/png
 
 package:
   include:
