@@ -1,0 +1,311 @@
+openapi: 3.0.1
+info:
+  description: |
+    The HeroesIndex api provides access to JSON data output from the [heroes-parser](https://github.com/joeistas/heroes-parser) tool which extacts Hero and Mount data from Heroes of the Storm game data and converts it to JSON.
+    
+    ## Assets
+    All images referenced by JSON output are converted to the PNG image format and are accessable at [assets.heroesindex.com](assets.heroesindex.com). They are organized by version build number `assets.heroesindex.com/{buildNumber}/{assetPath}.png`
+    
+    ## Source XML and Text
+    The source xml and text used by heroes-parser are stored in a zip file accessable at [assets.heroesindex.com](assets.heroesindex.com). They are also organized by version build number `assets.heroesindex.com/{buildNumber}/source.zip`
+    
+  version: 1.0.0
+  title: Heroes Index
+  contact:
+    name: Istastech support
+    email: support@istastech.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  -
+    url: api.heroesindex.com/v1
+    description: Production server
+components:
+  schemas:
+    Version:
+      description: Details of Heroes of the Storm Build
+      type: object
+      properties:
+        buildNumber:
+          type: number
+        name:
+          description: Short description of the release
+          type: string
+        versionNumber:
+          description: Public version number of the build, usually of the form 2.xx.y for example 2.34.1
+          type: string
+        releaseDate: 
+          type: string
+          format: date
+        realm:
+          description: The realm the version belongs too. Current values are 'live' and 'ptr'
+          type: string
+        
+    VersionDetail:
+      allOf:
+        - $ref: "#/components/schemas/Version"
+        -
+          type: object
+          properties:
+            heroes:
+              type: array
+              items:
+                $ref: '#/components/schemas/Hero'
+            mounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Mount'  
+                
+    Hero:
+      description: Basic information about a hero
+      type: object
+      properties:
+        id:
+          description: Unique indetifier
+          type: string
+        name:
+          description: Display name
+          type: string
+        icon:
+          description: Hero icon
+          type: string
+        universe:
+          description: Blizzard Universe hero belongs to.
+          type: string
+        role:
+          description: Role
+          type: string
+        title:
+          description: Hero title
+          type: string
+        description:
+          description: Hero description
+          type: string
+        
+    Mount:
+      description: Basic information about a Heroes of the Storm mount
+      type: object
+      properties:
+        id:
+          description: Unique indetifier
+          type: string
+        name:
+          description: Display name
+          type: string
+        description:
+          description: Mount description
+          type: string
+        rarity:
+          description: Mount rarity
+          type: string
+        category:
+          description: Type of mount
+          type: string
+
+  parameters:
+    Origin:
+      name: Origin
+      in: header
+      description: Provides the origin of the request. Required to support CORS.
+      required: true
+      schema:
+        type: string
+    Realm:
+      name: realm
+      in: path
+      description: Heroes of the Storm realm. Either 'live' or 'ptr'
+      required: true
+      schema:
+        type: string
+    BuildNumber:
+      name: buildNumber
+      in: path
+      description: Build number of the desired version
+      required: true
+      schema:
+        type: string
+    HeroId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    MountId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    Profile:
+      name: profile
+      in: path
+      description: JSON profile type. Currently allowed values are 'basic', 'skins', 'vo', and 'detailed'
+      required: true
+      schema:
+        type: string
+paths:
+  /:
+    get:
+      description: Returns a list of available realms
+      responses:
+        200:
+          description: A list of realms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  realms:
+                    type: array
+                    items:
+                      type: string
+      parameters: 
+        - $ref: '#/components/parameters/Origin'
+        
+  /{realm}:
+    get:
+      description: Returns a list of versions for this realm
+      responses:
+        200:
+          description: A list of versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    $ref: '#/components/schemas/Version'
+      parameters: 
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        
+  /{realm}/{buildNumber}:
+    get:
+      description: Returns detailed information about the specifed version. Includes a lists of available heroes and mounts
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionDetail'
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        
+  /{realm}/{buildNumber}/heroes:
+    get:
+      description: Returns a list of heroes in the specifed version
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profiles:
+                    type: array
+                    items:
+                      type: string
+                  heroes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Hero'
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        
+  /{realm}/{buildNumber}/heroes/{id}:
+    get:
+      description: Returns a JSON for hero 'basic' profile
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        - $ref: '#/components/parameters/HeroId'
+        
+  /{realm}/{buildNumber}/heroes/{id}/{profile}:
+    get:
+      description: Returns a JSON for hero and profile
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        - $ref: '#/components/parameters/HeroId'
+        - $ref: '#/components/parameters/Profile'
+        
+  /{realm}/{buildNumber}/mounts/:
+    get:
+      description: Returns a list of mounts in the specifed version
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  profiles:
+                    type: array
+                    items:
+                      type: string
+                  mounts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Mount'
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        
+  /{realm}/{buildNumber}/mounts/{id}:
+    get:
+      description: Returns a JSON for mount 'basic' profile
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        - $ref: '#/components/parameters/MountId'
+
+  /{realm}/{buildNumber}/mounts/{id}/{profile}:
+    get:
+      description: Returns a JSON for mount and profile
+      responses:
+        200:
+          description: Version detail
+          content:
+            application/json:
+              schema:
+                type: object
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/Realm'
+        - $ref: '#/components/parameters/BuildNumber'
+        - $ref: '#/components/parameters/MountId'
+        - $ref: '#/components/parameters/Profile'
+  

@@ -40,11 +40,11 @@ functions:
     timeout: 30
     events:
       - http:
-          path: "/"
+          path: "/v1/"
           method: any
           cors: true
       - http:
-          path: "/{proxy+}"
+          path: "/v1/{proxy+}"
           method: any
           cors: true
 
