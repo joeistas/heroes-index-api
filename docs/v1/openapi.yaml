@@ -1,14 +1,14 @@
 openapi: 3.0.1
 info:
   description: |
-    The HeroesIndex api provides access to JSON data output from the [heroes-parser](https://github.com/joeistas/heroes-parser) tool which extacts Hero and Mount data from Heroes of the Storm game data and converts it to JSON.
-    
+    The HeroesIndex api provides access to JSON data output from [heroes-parser](https://github.com/joeistas/heroes-parser). heroes-parser extacts Hero and Mount data from Heroes of the Storm game data and converts it to JSON.
+
     ## Assets
     All images referenced by JSON output are converted to the PNG image format and are accessable at [assets.heroesindex.com](assets.heroesindex.com). They are organized by version build number `assets.heroesindex.com/{buildNumber}/{assetPath}.png`
-    
+
     ## Source XML and Text
     The source xml and text used by heroes-parser are stored in a zip file accessable at [assets.heroesindex.com](assets.heroesindex.com). They are also organized by version build number `assets.heroesindex.com/{buildNumber}/source.zip`
-    
+
   version: 1.0.0
   title: Heroes Index
   contact:
@@ -35,13 +35,13 @@ components:
         versionNumber:
           description: Public version number of the build, usually of the form 2.xx.y for example 2.34.1
           type: string
-        releaseDate: 
+        releaseDate:
           type: string
           format: date
         realm:
           description: The realm the version belongs too. Current values are 'live' and 'ptr'
           type: string
-        
+
     VersionDetail:
       allOf:
         - $ref: "#/components/schemas/Version"
@@ -55,8 +55,8 @@ components:
             mounts:
               type: array
               items:
-                $ref: '#/components/schemas/Mount'  
-                
+                $ref: '#/components/schemas/Mount'
+
     Hero:
       description: Basic information about a hero
       type: object
@@ -82,7 +82,7 @@ components:
         description:
           description: Hero description
           type: string
-        
+
     Mount:
       description: Basic information about a Heroes of the Storm mount
       type: object
@@ -144,148 +144,189 @@ components:
       required: true
       schema:
         type: string
+  responses:
+    NotFoundError:
+      description: 404 not found error
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: Not Found
+    RealmList:
+      description: List of available realms
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              realms:
+                type: array
+                items:
+                  type: string
+    VersionList:
+      description: List of versions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              versions:
+                $ref: '#/components/schemas/Version'
+    VersionDetail:
+      description: Version detail
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VersionDetail'
+    HeroList:
+      description: List of Heroes
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              profiles:
+                type: array
+                items:
+                  type: string
+              heroes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hero'
+    MountList:
+      description: List of Mounts
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              profiles:
+                type: array
+                items:
+                  type: string
+              heroes:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mount'
+    HeroJSON:
+      description: Hero JSON
+      content:
+        application/json:
+          schema:
+            type: object
+    MountJSON:
+      description: Mount JSON
+      content:
+        application/json:
+          schema:
+            type: object
+
 paths:
   /:
     get:
+      summary: List realms
       description: Returns a list of available realms
       responses:
         200:
-          description: A list of realms
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  realms:
-                    type: array
-                    items:
-                      type: string
-      parameters: 
+          $ref: "#/components/responses/RealmList"
+      parameters:
         - $ref: '#/components/parameters/Origin'
-        
+
   /{realm}:
     get:
+      summary: List versions for realm
       description: Returns a list of versions for this realm
       responses:
         200:
-          description: A list of versions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  versions:
-                    $ref: '#/components/schemas/Version'
-      parameters: 
+          $ref: "#/components/responses/VersionList"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+      parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
-        
+
   /{realm}/{buildNumber}:
     get:
+      summary: Get version details
       description: Returns detailed information about the specifed version. Includes a lists of available heroes and mounts
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VersionDetail'
+          $ref: "#/components/responses/VersionDetail"
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
-        
+
   /{realm}/{buildNumber}/heroes:
     get:
+      summary: List heroes for version
       description: Returns a list of heroes in the specifed version
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  profiles:
-                    type: array
-                    items:
-                      type: string
-                  heroes:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Hero'
+          $ref: '#/components/responses/HeroList'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
-        
+
   /{realm}/{buildNumber}/heroes/{id}:
     get:
-      description: Returns a JSON for hero 'basic' profile
+      summary: Basic hero JSON
+      description: Returns hero JSON for 'basic' profile
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/HeroJSON'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
         - $ref: '#/components/parameters/HeroId'
-        
+
   /{realm}/{buildNumber}/heroes/{id}/{profile}:
     get:
-      description: Returns a JSON for hero and profile
+      summary: Hero JSON for profile
+      description: Returns hero JSON for profile
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/HeroJSON'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
         - $ref: '#/components/parameters/HeroId'
         - $ref: '#/components/parameters/Profile'
-        
+
   /{realm}/{buildNumber}/mounts/:
     get:
+      summary: List mounts for version
       description: Returns a list of mounts in the specifed version
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  profiles:
-                    type: array
-                    items:
-                      type: string
-                  mounts:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Mount'
+          $ref: '#/components/responses/MountList'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
-        
+
   /{realm}/{buildNumber}/mounts/{id}:
     get:
-      description: Returns a JSON for mount 'basic' profile
+      summary: Basic mount JSON
+      description: Returns mount JSON for 'basic' profile
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/MountJSON'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
@@ -294,18 +335,16 @@ paths:
 
   /{realm}/{buildNumber}/mounts/{id}/{profile}:
     get:
-      description: Returns a JSON for mount and profile
+      summary: Mount JSON for profile
+      description: Returns mount JSON for profile
       responses:
         200:
-          description: Version detail
-          content:
-            application/json:
-              schema:
-                type: object
+          $ref: '#/components/responses/MountJSON'
+        404:
+          $ref: "#/components/responses/NotFoundError"
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/Realm'
         - $ref: '#/components/parameters/BuildNumber'
         - $ref: '#/components/parameters/MountId'
         - $ref: '#/components/parameters/Profile'
-  

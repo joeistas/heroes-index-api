@@ -2,8 +2,8 @@ const Router = require("koa-router")
 
 const heroes = require("./heroes")
 const mounts = require("./mounts")
-const { bufferToJsonResponse } = require("../../response")
-const { getObjectFromS3 } = require("../../s3")
+const { bufferToJsonResponse } = require("../../../response")
+const { getObjectFromS3 } = require("../../../s3")
 
 const router = new Router()
 

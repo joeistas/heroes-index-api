@@ -1,7 +1,11 @@
 service: heroes-data-api
 
 custom:
-  S3_BUCKET_NAME: istastech.heroes.data
+  LATEST_VERSION: v1
+  STAGE: ${opt:stage, 'dev'}
+  S3_BUCKET_NAME: istastech.heroesindex.data.${self:custom.STAGE}
+  S3_ASSET_BUCKET_NAME: istastech.heroesindex.assets.${self:custom.STAGE}
+  S3_WEBSITE_BUCKET_NAME: istastech.heroesindex.com.${self:custom.STAGE}
   VERSION_INDEX_FILE_NAME: index.json
   VERSIONS_FILE_NAME: versions.json
 
@@ -9,7 +13,7 @@ provider:
   name: aws
   runtime: nodejs8.10
   profile: admin
-  stage: dev
+  stage: ${self:custom.STAGE}
   region: us-west-2
   memorySize: 128
   timeout: 30
@@ -24,7 +28,10 @@ provider:
         - "s3:ListBucket"
       Resource: arn:aws:s3:::${self:custom.S3_BUCKET_NAME}
   environment:
+    STAGE: ${self:provider.stage}
+    LATEST_VERSION: ${self:custom.LATEST_VERSION}
     S3_BUCKET_NAME: ${self:custom.S3_BUCKET_NAME}
+    S3_ASSET_BUCKET_NAME: ${self:custom.S3_ASSET_BUCKET_NAME}
     S3_DELIMITER: "/"
     VERSION_INDEX_FILE_NAME: ${self:custom.VERSION_INDEX_FILE_NAME}
     VERSIONS_FILE_NAME: ${self:custom.VERSIONS_FILE_NAME}
@@ -33,6 +40,7 @@ package:
   include:
     - handler.js
     - src/**
+    - docs/**
 
 functions:
   api:
@@ -40,11 +48,11 @@ functions:
     timeout: 30
     events:
       - http:
-          path: "/v1/"
+          path: "/"
           method: any
           cors: true
       - http:
-          path: "/v1/{proxy+}"
+          path: "/{proxy+}"
           method: any
           cors: true
 
@@ -61,3 +69,18 @@ functions:
           event: s3:ObjectRemoved:*
           rules:
             - suffix: ${self:custom.VERSION_INDEX_FILE_NAME}
+resources:
+  Resources:
+    assetBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.S3_ASSET_BUCKET_NAME}
+        AccessControl: PublicRead
+    websiteBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.S3_WEBSITE_BUCKET_NAME}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          ErrorDocument: index.html
+          IndexDocument: index.html

@@ -1,8 +1,8 @@
 const Router = require("koa-router")
 
-const { getVersionProfiles } = require("../../middleware/profiles")
-const { bufferToJsonResponse } = require("../../response")
-const { getObjectFromS3, getFileChildren } = require("../../s3")
+const { getVersionProfiles } = require("../../../middleware/profiles")
+const { bufferToJsonResponse } = require("../../../response")
+const { getObjectFromS3, getFileChildren } = require("../../../s3")
 
 const router = new Router()
 
