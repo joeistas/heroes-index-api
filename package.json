@@ -15,6 +15,7 @@
     "serverless-http": "^1.5.5"
   },
   "devDependencies": {
-    "serverless": "^1.27.3"
+    "serverless": "^1.27.3",
+    "serverless-domain-manager": "^2.6.0"
   }
 }

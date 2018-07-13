@@ -152,6 +152,20 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
+aws-sdk@^2.177.0:
+  version "2.271.1"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.271.1.tgz#4061c744eac569b68631baf41f3d3088cc1a4069"
+  dependencies:
+    buffer "4.9.1"
+    events "1.1.1"
+    ieee754 "1.1.8"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.1.0"
+    xml2js "0.4.17"
+
 aws-sdk@^2.228.0:
   version "2.253.1"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.253.1.tgz#5ca10d7115562fc40adedc35c4d99703f8fe5f9c"
@@ -1601,6 +1615,13 @@ semver@^5.0.3, semver@^5.1.0:
 semver@~5.0.1:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.0.3.tgz#77466de589cd5d3c95f138aa78bc569a3cb5d27a"
+
+serverless-domain-manager@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/serverless-domain-manager/-/serverless-domain-manager-2.6.0.tgz#94798bb7f6de99b189a87a0b7e6e3f934781f87e"
+  dependencies:
+    aws-sdk "^2.177.0"
+    chalk "^2.0.1"
 
 serverless-http@^1.5.5:
   version "1.5.5"
