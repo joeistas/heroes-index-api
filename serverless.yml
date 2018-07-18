@@ -19,6 +19,7 @@ custom:
     SslSupportMethod: sni-only
   S3_BUCKET_NAME: ${file(variables.yml):data_bucket_base_name}.${self:custom.STAGE}
   S3_ASSET_BUCKET_NAME: ${file(variables.yml):assets_bucket_base_name}.${self:custom.STAGE}
+  S3_LOGGING_BUCKET_NAME: ${file(variables.yml):logging_bucket_base_name}.${self:custom.STAGE}
   S3_WEBSITE_BUCKET_NAME: ${file(variables.yml):website_bucket_base_name}.${self:custom.STAGE}
   VERSION_INDEX_FILE_NAME: index.json
   VERSIONS_FILE_NAME: versions.json
@@ -92,6 +93,10 @@ functions:
             - suffix: ${self:custom.VERSION_INDEX_FILE_NAME}
 resources:
   Resources:
+    loggingBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.S3_LOGGING_BUCKET_NAME}
     assetBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -165,6 +170,9 @@ resources:
                 Forward: none
             ViewerProtocolPolicy: redirect-to-https
           ViewerCertificate: ${self:custom.VIEWER_CERT_${self:custom.STAGE}}
+          Logging:
+            Bucket: ${self:custom.S3_LOGGING_BUCKET_NAME}.s3.amazonaws.com
+            Prefix: websiteCloudFront/
     assetCloudFrontDistribution:
       Type: AWS::CloudFront::Distribution
       Properties:
@@ -191,6 +199,9 @@ resources:
                 Forward: none
             ViewerProtocolPolicy: redirect-to-https
           ViewerCertificate: ${self:custom.VIEWER_CERT_${self:custom.STAGE}}
+          Logging:
+            Bucket: ${self:custom.S3_LOGGING_BUCKET_NAME}.s3.amazonaws.com
+            Prefix: assetsCloudFront/
   Outputs:
     websiteCloudFrontDistributionOutput:
       Value:
